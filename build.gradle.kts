@@ -2,15 +2,22 @@ import org.gradle.nativeplatform.platform.internal.Architectures
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
-    id("java")
+    java
+    application
     id("me.champeau.jmh").version("0.6.6")
+
 }
 
-group = "org.example"
+group = "com.zyte"
 version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
@@ -47,4 +54,39 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+sourceSets.main{
+    java.srcDirs("src/main/java")
+}
+
+val mainClassName = "com.zyte.server.BenchmarkServer"
+val mainVerticleName = "com.zyte.server.BenchmarkServer"
+val launcherClassName = "io.vertx.core.Launcher"
+
+
+application {
+    mainClass.set(mainClassName)
+    applicationDefaultJvmArgs = listOf(// Remote DEBUG and JMX settings
+        "--enable-preview",
+        "-Dcom.sun.management.jmxremote",
+        "-Dcom.sun.management.jmxremote.port=5555",
+        "-Dcom.sun.management.jmxremote.rmi.port=37778",
+        "-Dcom.sun.management.jmxremote.authenticate=false",
+        "-Dcom.sun.management.jmxremote.ssl=false",
+        "-Dcom.sun.management.jmxremote.local.only=false",
+        "-Djava.rmi.server.hostname=127.0.0.1",
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
+        "-XX:+UseG1GC",
+        "-XX:NewRatio=8",
+        "-verbose:gc",
+        "-XX:ActiveProcessorCount=2",
+        "-Xmx4G",
+        "-Xms4G"
+    )
+}
+
+
+tasks.withType<JavaExec> {
+    args = listOf("run", mainVerticleName, "--launcher-class=$launcherClassName")
 }

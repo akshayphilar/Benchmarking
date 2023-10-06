@@ -1,3 +1,5 @@
+package com.zyte.server;
+
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import com.aayushatharva.brotli4j.encoder.Encoder;
 import io.vertx.core.AbstractVerticle;
